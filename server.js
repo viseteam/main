@@ -14,46 +14,59 @@ if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 const storage = multer.diskStorage({
     destination: './public/uploads/',
     filename: (req, file, cb) => {
-        // req.body is available here ONLY if the text input comes BEFORE the file input in the HTML form
         const customId = req.body.customId;
-        
         let finalName;
+        // Logic for custom vise- name
         if(customId && customId.trim().length > 0) {
-            // Sanitize: Allow only letters/numbers, max 30 chars
             const safeSlug = customId.replace(/[^a-zA-Z0-9]/g, "").substring(0, 30);
             finalName = `vise-${safeSlug}${path.extname(file.originalname)}`;
         } else {
             finalName = uuidv4() + path.extname(file.originalname);
         }
-        
         cb(null, finalName);
     }
 });
 
 const upload = multer({
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: (req, file, cb) => {
         const filetypes = /jpeg|jpg|png|gif|webp/;
         if(filetypes.test(file.mimetype)) return cb(null, true);
-        cb('Error: Images Only');
+        cb('images / gifs only');
     }
 }).single('viseImage');
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
-// GET: Render Page
+// 1. Home Page
 app.get('/', (req, res) => res.render('index', { error: null }));
 
-// POST: Upload & Redirect
+// 2. The "File Page" (Wrapper with Metadata)
+app.get('/v/:filename', (req, res) => {
+    const fileName = req.params.filename;
+    const filePath = path.join(uploadDir, fileName);
+
+    // Security check to prevent directory traversal
+    if (fileName.indexOf('..') !== -1 || !fs.existsSync(filePath)) {
+        return res.status(404).send('File not found');
+    }
+
+    res.render('image', { 
+        file: fileName,
+        url: `${req.protocol}://${req.get('host')}/uploads/${fileName}`
+    });
+});
+
+// 3. Upload & Redirect
 app.post('/upload', (req, res) => {
     upload(req, res, (err) => {
         if(err) return res.render('index', { error: err });
         if(!req.file) return res.render('index', { error: 'No File Selected' });
 
-        // Redirect directly to the image
-        res.redirect(`/uploads/${req.file.filename}`);
+        // Redirect to the wrapper page (opens in new tab per form attribute)
+        res.redirect(`/v/${req.file.filename}`);
     });
 });
 
