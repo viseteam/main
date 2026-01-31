@@ -3,105 +3,60 @@
 <meta name=viewport content="width=device-width,initial-scale=1">
 <title>vise.</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel=stylesheet>
-
 <style>
 :root{--a:#09090b;--b:#18181b;--c:#27272a;--d:#fafafa;--e:#71717a;--f:#ef4444}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--a);color:var(--d);font-family:Inter,sans-serif;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}
-
 .kJ39sK2pWmQ8R6NfT2XcL9Z{width:100%;max-width:480px;padding:2rem;position:relative;z-index:10}
-.AwZQp9M3LxFJ2VdT8yR6e{ text-align:center;margin-bottom:2.5rem }
+.AwZQp9M3LxFJ2VdT8yR6e{text-align:center;margin-bottom:2.5rem}
 .QR8sP3X9T0eZ6KJ2WmF{font-weight:800;font-size:2.5rem;letter-spacing:-3px;mix-blend-mode:difference}
 .H6ZxM9P2Q3yK8L0JcR{color:var(--e);font-size:.9rem;margin-top:5px}
-
 .m8PZK9L6yFQxT2R0A3J{background:var(--b);border:1px solid var(--c);border-radius:24px;padding:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,.5)}
-
 .QJ8R9sZLxK2F0P3W6M{display:flex;justify-content:space-between;margin-bottom:8px;font-size:.8rem}
 .VT9JX6KZ8s0P3RFL{color:var(--d);font-weight:600}
 .XP9M8K2ZsLJ3R0Q6{color:var(--e);font-size:.75rem;text-transform:uppercase}
-
 .R8s6Z3JQ0T2KX9LMP{display:flex;align-items:center;background:rgba(255,255,255,.03);border:1px solid var(--c);border-radius:12px;padding:0 16px;margin-bottom:1rem}
 .R8s6Z3JQ0T2KX9LMP:focus-within{border-color:var(--d)}
 .WM9ZP8R3KJ6s0X2Q{color:var(--e);font-family:monospace}
 .R8s6Z3JQ0T2KX9LMP input{background:0;border:0;color:var(--d);padding:16px 0;width:100%;outline:0;font-family:monospace}
-
 .P3sRZKQ8X0M6L9J2{height:180px;border:2px dashed var(--c);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative}
 .P3sRZKQ8X0M6L9J2:hover{border-color:var(--d)}
 .P3sRZKQ8X0M6L9J2 svg{width:40px;height:40px;color:var(--e)}
 .P3sRZKQ8X0M6L9J2 input{position:absolute;inset:0;opacity:0}
-
 .L9QZ3sP8R0K2X6JMF{display:none;color:var(--e);text-align:center;margin-top:10px}
-
 .ZP6K8Q9M0sXRJ3L2{color:var(--f);background:rgba(239,68,68,.1);padding:12px;border-radius:12px;font-size:.85rem;margin-bottom:1.5rem;text-align:center}
-
-.XM6PZKQ9R3LJ08s2{position:fixed;bottom:20px;left:20px;color:var(--e);font-size:.85rem;background:0;border:0;cursor:pointer}
-
-.RQ3P9ZL6sKJX80M2{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;align-items:center;justify-content:center}
+.XM6PZKQ9R3LJ08s2{position:fixed;bottom:20px;left:20px;color:var(--e);font-size:.85rem;background:0;border:0;cursor:pointer;z-index:10000}
+.RQ3P9ZL6sKJX80M2{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:9999}
 .RQ3P9ZL6sKJX80M2.ACTV{display:flex}
-
 .MQJ0sP9ZKX36R8L2{background:var(--b);border:1px solid var(--c);padding:2rem 3rem;border-radius:16px;text-align:center}
-
 .KZJ8sQ9XPL0M6R23{margin-top:1.5rem;background:0;border:1px solid var(--c);color:var(--d);padding:8px 16px;border-radius:8px;cursor:pointer}
 </style>
 </head>
-
 <body>
-
 <div class="kJ39sK2pWmQ8R6NfT2XcL9Z">
-  <div class="AwZQp9M3LxFJ2VdT8yR6e">
-    <div class="QR8sP3X9T0eZ6KJ2WmF">vise.</div>
-    <p class="H6ZxM9P2Q3yK8L0JcR">free uploading service</p>
-  </div>
-
-  <% if(error){ %>
-    <div class="ZP6K8Q9M0sXRJ3L2"><%= error %></div>
-  <% } %>
-
-  <form action="/upload" method="POST" enctype="multipart/form-data"
-        class="m8PZK9L6yFQxT2R0A3J" id="F0QKJ9R6M2PZ8X3sL">
-
-    <div class="QJ8R9sZLxK2F0P3W6M">
-      <span class="VT9JX6KZ8s0P3RFL">custom link</span>
-      <span class="XP9M8K2ZsLJ3R0Q6">optional</span>
-    </div>
-
-    <div class="R8s6Z3JQ0T2KX9LMP">
-      <span class="WM9ZP8R3KJ6s0X2Q">vise.best/uploads/vise-</span>
-      <input type="text" name="customId" autocomplete="off">
-    </div>
-
-    <div class="P3sRZKQ8X0M6L9J2" id="Q6PZJ9R8sL0MX3K2">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round"
-        d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/>
-      </svg>
-      <input type="file" name="viseImage" id="Z9Q0JX2M6R3K8PsL">
-    </div>
-
-    <div class="L9QZ3sP8R0K2X6JMF" id="JQZ3X2M0R6sK9P8L">uploading</div>
-  </form>
+<div class="AwZQp9M3LxFJ2VdT8yR6e">
+<div class="QR8sP3X9T0eZ6KJ2WmF">vise.</div>
+<p class="H6ZxM9P2Q3yK8L0JcR">free uploading service</p>
 </div>
-
+<% if(error){ %><div class="ZP6K8Q9M0sXRJ3L2"><%= error %></div><% } %>
+<form action="/upload" method="POST" enctype="multipart/form-data" class="m8PZK9L6yFQxT2R0A3J" id="F0QKJ9R6M2PZ8X3sL">
+<div class="QJ8R9sZLxK2F0P3W6M"><span class="VT9JX6KZ8s0P3RFL">custom link</span><span class="XP9M8K2ZsLJ3R0Q6">optional</span></div>
+<div class="R8s6Z3JQ0T2KX9LMP"><span class="WM9ZP8R3KJ6s0X2Q">vise.best/uploads/vise-</span><input type="text" name="customId" autocomplete="off"></div>
+<div class="P3sRZKQ8X0M6L9J2" id="Q6PZJ9R8sL0MX3K2">
+<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.0 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"/></svg>
+<input type="file" name="viseImage" id="Z9Q0JX2M6R3K8PsL">
+</div>
+<div class="L9QZ3sP8R0K2X6JMF" id="JQZ3X2M0R6sK9P8L">uploading</div>
+</form>
+</div>
 <button class="XM6PZKQ9R3LJ08s2" onclick="x()">credits</button>
-
 <div class="RQ3P9ZL6sKJX80M2" id="M0Z9R6P8XJ3sL2KQ">
-  <div class="MQJ0sP9ZKX36R8L2">
-    <h3>credits</h3>
-    <p>created by dill</p>
-    <button class="KZJ8sQ9XPL0M6R23" onclick="x()">Close</button>
-  </div>
+<div class="MQJ0sP9ZKX36R8L2"><h3>credits</h3><p>created by dill</p><button class="KZJ8sQ9XPL0M6R23" onclick="x()">close</button></div>
 </div>
-
 <script>
-const A=document.getElementById("Z9Q0JX2M6R3K8PsL"),
-B=document.getElementById("F0QKJ9R6M2PZ8X3sL"),
-C=document.getElementById("JQZ3X2M0R6sK9P8L"),
-D=document.getElementById("Q6PZJ9R8sL0MX3K2"),
-E=document.getElementById("M0Z9R6P8XJ3sL2KQ");
-
+const A=document.getElementById("Z9Q0JX2M6R3K8PsL"),B=document.getElementById("F0QKJ9R6M2PZ8X3sL"),C=document.getElementById("JQZ3X2M0R6sK9P8L"),D=document.getElementById("Q6PZJ9R8sL0MX3K2"),E=document.getElementById("M0Z9R6P8XJ3sL2KQ");
 A.onchange=()=>{if(A.files.length){D.style.display="none";C.style.display="block";B.submit()}};
-function x(){E.classList.toggle("ACTV")}
-E.onclick=e=>{if(e.target===E)x()}
+function x(){E.classList.toggle("ACTV");document.body.style.overflow=E.classList.contains("ACTV")?"hidden":""}
+E.onclick=e=>{if(e.target===E)x()};
 </script>
-
 </body></html>
