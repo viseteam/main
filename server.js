@@ -14,8 +14,19 @@ if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 const storage = multer.diskStorage({
     destination: './public/uploads/',
     filename: (req, file, cb) => {
-        // Randomize filename
-        cb(null, uuidv4() + path.extname(file.originalname));
+        // req.body is available here ONLY if the text input comes BEFORE the file input in the HTML form
+        const customId = req.body.customId;
+        
+        let finalName;
+        if(customId && customId.trim().length > 0) {
+            // Sanitize: Allow only letters/numbers, max 30 chars
+            const safeSlug = customId.replace(/[^a-zA-Z0-9]/g, "").substring(0, 30);
+            finalName = `vise-${safeSlug}${path.extname(file.originalname)}`;
+        } else {
+            finalName = uuidv4() + path.extname(file.originalname);
+        }
+        
+        cb(null, finalName);
     }
 });
 
@@ -24,35 +35,25 @@ const upload = multer({
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
     fileFilter: (req, file, cb) => {
         const filetypes = /jpeg|jpg|png|gif|webp/;
-        const mimetype = filetypes.test(file.mimetype);
-        if(mimetype) return cb(null, true);
+        if(filetypes.test(file.mimetype)) return cb(null, true);
         cb('Error: Images Only');
     }
 }).single('viseImage');
 
-// View Engine
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
-// Routes
-app.get('/', (req, res) => {
-    // FIX: We must pass 'error' explicitly, even if it is null
-    res.render('index', { link: null, error: null });
-});
+// GET: Render Page
+app.get('/', (req, res) => res.render('index', { error: null }));
 
+// POST: Upload & Redirect
 app.post('/upload', (req, res) => {
     upload(req, res, (err) => {
-        if(err) {
-            // FIX: Pass 'error' here too
-            return res.render('index', { link: null, error: err });
-        }
-        if(!req.file) {
-            // FIX: Pass 'error' here too
-            return res.render('index', { link: null, error: 'No File Selected' });
-        }
+        if(err) return res.render('index', { error: err });
+        if(!req.file) return res.render('index', { error: 'No File Selected' });
 
-        const fullUrl = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
-        res.render('index', { link: fullUrl, error: null });
+        // Redirect directly to the image
+        res.redirect(`/uploads/${req.file.filename}`);
     });
 });
 
