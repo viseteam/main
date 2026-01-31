@@ -3,17 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>VISE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>vise.</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg:#09090b; --card:#18181b; --border:#27272a; --accent:#fafafa; --txt:#71717a; --err:#ef4444; }
+        :root {
+            --bg: #09090b;
+            --card: #18181b;
+            --border: #27272a;
+            --accent: #fafafa;
+            --txt: #71717a;
+            --err: #ef4444;
+        }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { background:var(--bg); color:var(--accent); font-family:'Inter',sans-serif; height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-        .w { width:100%; max-width:480px; padding:2rem; }
-        .brand { font-weight:800; font-size:2.5rem; letter-spacing:-3px; text-align:center; margin-bottom:2rem; mix-blend-mode:difference; }
-        .box { background:var(--card); border:1px solid var(--border); border-radius:24px; padding:24px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); }
-        
-        /* New URL Input Style */
+        body {
+            background: var(--bg);
+            color: var(--accent);
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .w { width: 100%; max-width: 480px; padding: 2rem; position: relative; z-index: 10; }
+
+        /* Logo Section */
+        .header { text-align: center; margin-bottom: 2.5rem; }
+        .logo {
+            font-weight: 800;
+            font-size: 2.5rem;
+            letter-spacing: -3px;
+            mix-blend-mode: difference;
+            line-height: 1;
+        }
+        .desc {
+            color: var(--txt);
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 5px;
+        }
+
+        /* Main Card */
+        .box {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        /* Input Area */
+        .input-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+            padding: 0 4px;
+        }
+        .lbl-main { color: var(--accent); font-weight: 600; }
+        .lbl-opt { color: var(--txt); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
         .url-group {
             display: flex;
             align-items: center;
@@ -30,7 +80,7 @@
             background: transparent;
             border: none;
             color: var(--accent);
-            padding: 16px 0 16px 4px;
+            padding: 16px 0 16px 2px;
             font-family: 'Inter', monospace;
             font-size: 0.9rem;
             width: 100%;
@@ -38,28 +88,106 @@
         }
 
         /* Drop Zone */
-        .drop { height:180px; border:2px dashed var(--border); border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:0.2s; position:relative; cursor:pointer; background:rgba(255,255,255,0.01); gap:10px; }
-        .drop:hover { border-color:var(--accent); background:rgba(255,255,255,0.03); }
-        .drop svg { width:40px; height:40px; color:var(--txt); transition:0.2s; }
-        .drop:hover svg { color:var(--accent); }
-        .drop input { position:absolute; inset:0; opacity:0; cursor:pointer; }
-        
-        /* Loading State */
-        .loading-text { display:none; color: var(--txt); font-size: 0.9rem; margin-top: 10px; text-align: center; }
-        
-        .err { color:var(--err); background:rgba(239,68,68,0.1); padding:12px; border-radius:12px; font-size:0.85rem; text-align:center; margin-bottom:1.5rem; }
+        .drop {
+            height: 180px;
+            border: 2px dashed var(--border);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+            position: relative;
+            cursor: pointer;
+            background: rgba(255,255,255,0.01);
+            gap: 10px;
+        }
+        .drop:hover { border-color: var(--accent); background: rgba(255,255,255,0.03); }
+        .drop svg { width: 40px; height: 40px; color: var(--txt); transition: 0.2s; }
+        .drop:hover svg { color: var(--accent); }
+        .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+        /* Loading & Error */
+        .loading-text { display: none; color: var(--txt); font-size: 0.9rem; margin-top: 10px; text-align: center; }
+        .err { color: var(--err); background: rgba(239,68,68,0.1); padding: 12px; border-radius: 12px; font-size: 0.85rem; text-align: center; margin-bottom: 1.5rem; }
+
+        /* Credits Button */
+        .credits-btn {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: var(--txt);
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s;
+            z-index: 50;
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+        .credits-btn:hover { color: var(--accent); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 2rem 3rem;
+            border-radius: 16px;
+            text-align: center;
+            transform: scale(0.95);
+            transition: transform 0.3s;
+        }
+        .modal-overlay.active .modal { transform: scale(1); }
+        .modal h3 { margin-bottom: 0.5rem; font-weight: 600; }
+        .modal p { color: var(--txt); font-size: 0.9rem; }
+        .close-modal {
+            margin-top: 1.5rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        .close-modal:hover { background: var(--border); }
+
     </style>
 </head>
 <body>
+
     <div class="w">
-        <div class="brand">VISE.</div>
+        <div class="header">
+            <div class="logo">vise.</div>
+            <p class="desc">free uploading service</p>
+        </div>
+
         <% if(error){ %><div class="err"><%= error %></div><% } %>
         
         <form action="/upload" method="POST" enctype="multipart/form-data" class="box" id="upForm">
             
+            <div class="input-labels">
+                <span class="lbl-main">Custom Link</span>
+                <span class="lbl-opt">Optional</span>
+            </div>
+
             <div class="url-group">
                 <span class="prefix">vise.best/uploads/vise-</span>
-                <input type="text" name="customId" placeholder="random" autocomplete="off">
+                <input type="text" name="customId" autocomplete="off">
             </div>
 
             <div class="drop" id="dropZone">
@@ -69,8 +197,18 @@
                 <input type="file" name="viseImage" id="fileIn">
             </div>
             
-            <div class="loading-text" id="loadTxt">Uploading...</div>
+            <div class="loading-text" id="loadTxt">uploading</div>
         </form>
+    </div>
+
+    <button class="credits-btn" onclick="toggleModal()">Credits</button>
+
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <h3>credits</h3>
+            <p>created by dill</p>
+            <button class="close-modal" onclick="toggleModal()">x</button>
+        </div>
     </div>
 
     <script>
@@ -81,12 +219,25 @@
 
         fileIn.addEventListener('change', () => {
             if(fileIn.files.length > 0) {
-                // Show loading state
                 dropZone.style.display = 'none';
                 loadTxt.style.display = 'block';
-                // Submit form in the SAME tab to avoid popup blockers
                 form.submit();
             }
+        });
+
+        // Modal Logic
+        const modal = document.getElementById('modal');
+        function toggleModal() {
+            if (modal.classList.contains('active')) {
+                modal.classList.remove('active');
+            } else {
+                modal.classList.add('active');
+            }
+        }
+        
+        // Close modal when clicking outside box
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) toggleModal();
         });
     </script>
 </body>
