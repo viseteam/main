@@ -1,1 +1,93 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VISE</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet"><style>:root{--bg:#09090b;--card:#18181b;--border:#27272a;--accent:#fafafa;--txt:#71717a;--err:#ef4444}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--accent);font-family:'Inter',sans-serif;height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden}.w{width:100%;max-width:400px;padding:2rem}.brand{font-weight:800;font-size:2.5rem;letter-spacing:-3px;text-align:center;margin-bottom:2rem;mix-blend-mode:difference}.box{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5)}.field{margin-bottom:1rem;position:relative}.field input[type=text]{width:100%;background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--accent);padding:14px;border-radius:12px;font-family:inherit;font-size:0.9rem;outline:none;transition:0.2s}.field input[type=text]:focus{border-color:var(--accent);background:rgba(255,255,255,0.05)}.field span{position:absolute;right:14px;top:14px;color:var(--txt);font-size:0.8rem;pointer-events:none}.drop{height:180px;border:2px dashed var(--border);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:0.2s;position:relative;cursor:pointer;background:rgba(255,255,255,0.01);gap:10px}.drop:hover{border-color:var(--accent);background:rgba(255,255,255,0.03)}.drop svg{width:40px;height:40px;color:var(--txt);transition:0.2s}.drop:hover svg{color:var(--accent)}.drop input{position:absolute;inset:0;opacity:0;cursor:pointer}.err{color:var(--err);background:rgba(239,68,68,0.1);padding:12px;border-radius:12px;font-size:0.85rem;text-align:center;margin-bottom:1.5rem}</style></head><body><div class="w"><div class="brand">VISE.</div><% if(error){ %><div class="err"><%= error %></div><% } %><form action="/upload" method="POST" enctype="multipart/form-data" class="box" target="_blank"><div class="field"><input type="text" name="customId" placeholder="Custom Name (Optional)" autocomplete="off"><span>vise-</span></div><div class="drop"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg><input type="file" name="viseImage" onchange="this.form.submit()"></div></form></div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>VISE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg:#09090b; --card:#18181b; --border:#27272a; --accent:#fafafa; --txt:#71717a; --err:#ef4444; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { background:var(--bg); color:var(--accent); font-family:'Inter',sans-serif; height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+        .w { width:100%; max-width:480px; padding:2rem; }
+        .brand { font-weight:800; font-size:2.5rem; letter-spacing:-3px; text-align:center; margin-bottom:2rem; mix-blend-mode:difference; }
+        .box { background:var(--card); border:1px solid var(--border); border-radius:24px; padding:24px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); }
+        
+        /* New URL Input Style */
+        .url-group {
+            display: flex;
+            align-items: center;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0 16px;
+            margin-bottom: 1rem;
+            transition: 0.2s;
+        }
+        .url-group:focus-within { border-color: var(--accent); background: rgba(255,255,255,0.05); }
+        .prefix { color: var(--txt); font-family: 'Inter', monospace; font-size: 0.9rem; white-space: nowrap; user-select: none; }
+        .url-group input {
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            padding: 16px 0 16px 4px;
+            font-family: 'Inter', monospace;
+            font-size: 0.9rem;
+            width: 100%;
+            outline: none;
+        }
+
+        /* Drop Zone */
+        .drop { height:180px; border:2px dashed var(--border); border-radius:16px; display:flex; flex-direction:column; align-items:center; justify-content:center; transition:0.2s; position:relative; cursor:pointer; background:rgba(255,255,255,0.01); gap:10px; }
+        .drop:hover { border-color:var(--accent); background:rgba(255,255,255,0.03); }
+        .drop svg { width:40px; height:40px; color:var(--txt); transition:0.2s; }
+        .drop:hover svg { color:var(--accent); }
+        .drop input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+        
+        /* Loading State */
+        .loading-text { display:none; color: var(--txt); font-size: 0.9rem; margin-top: 10px; text-align: center; }
+        
+        .err { color:var(--err); background:rgba(239,68,68,0.1); padding:12px; border-radius:12px; font-size:0.85rem; text-align:center; margin-bottom:1.5rem; }
+    </style>
+</head>
+<body>
+    <div class="w">
+        <div class="brand">VISE.</div>
+        <% if(error){ %><div class="err"><%= error %></div><% } %>
+        
+        <form action="/upload" method="POST" enctype="multipart/form-data" class="box" id="upForm">
+            
+            <div class="url-group">
+                <span class="prefix">vise.best/uploads/vise-</span>
+                <input type="text" name="customId" placeholder="random" autocomplete="off">
+            </div>
+
+            <div class="drop" id="dropZone">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                </svg>
+                <input type="file" name="viseImage" id="fileIn">
+            </div>
+            
+            <div class="loading-text" id="loadTxt">Uploading...</div>
+        </form>
+    </div>
+
+    <script>
+        const fileIn = document.getElementById('fileIn');
+        const form = document.getElementById('upForm');
+        const loadTxt = document.getElementById('loadTxt');
+        const dropZone = document.getElementById('dropZone');
+
+        fileIn.addEventListener('change', () => {
+            if(fileIn.files.length > 0) {
+                // Show loading state
+                dropZone.style.display = 'none';
+                loadTxt.style.display = 'block';
+                // Submit form in the SAME tab to avoid popup blockers
+                form.submit();
+            }
+        });
+    </script>
+</body>
+</html>
