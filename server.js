@@ -9,83 +9,101 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 1. Configure Cloudinary
+/* ---------------- CLOUDINARY ---------------- */
+
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// 2. Setup Cloudinary Storage Engine
+/* ---------------- STORAGE ---------------- */
+
 const storage = new CloudinaryStorage({
-    cloudinary: cloudinary,
+    cloudinary,
     params: async (req, file) => {
         const customId = req.body.customId;
         let publicId;
 
-        // Custom Name Logic
-        if (customId && customId.trim().length > 0) {
-            const safeSlug = customId.replace(/[^a-zA-Z0-9]/g, "").substring(0, 30);
-            publicId = `vise-${safeSlug}`; 
+        if (customId && customId.trim()) {
+            const safeSlug = customId
+                .replace(/[^a-zA-Z0-9]/g, "")
+                .substring(0, 30);
+            publicId = `vise-${safeSlug}`;
         } else {
-            // Random Name
             publicId = uuidv4();
         }
 
         return {
-            folder: 'vise_uploads', // The folder in your Cloudinary dashboard
+            folder: 'vise_uploads',
             public_id: publicId,
-            format: 'png', // Force convert to PNG (optional, or remove to keep original)
+            format: 'png'
         };
-    },
+    }
 });
 
-const upload = multer({ 
-    storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB Limit
+const upload = multer({
+    storage,
+    limits: { fileSize: 10 * 1024 * 1024 }
 }).single('viseImage');
+
+/* ---------------- APP CONFIG ---------------- */
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
+app.use(express.urlencoded({ extended: true }));
 
-// --- ROUTES ---
+/* ---------------- ROUTES ---------------- */
 
-// 1. Home Page
-app.get('/', (req, res) => res.render('index', { error: null }));
-
-// 2. The "File Page" (Wrapper)
-// Now constructs the URL using Cloudinary data
-app.get('/v/:id', async (req, res) => {
-    const fileId = req.params.id;
-    
-    // Construct the direct Cloudinary URL
-    // Format: https://res.cloudinary.com/<cloud_name>/image/upload/<folder>/<id>
-    const imageUrl = cloudinary.url(`vise_uploads/${fileId}`, {
-        secure: true,
-        transformation: [
-            { quality: "auto", fetch_format: "auto" } // Optimization
-        ]
-    });
-
-    res.render('image', { 
-        file: fileId,
-        url: imageUrl 
+// Home
+app.get('/', (req, res) => {
+    res.render('index', {
+        error: null
     });
 });
 
-// 3. Upload & Redirect
-app.post('/upload', (req, res) => {
-    upload(req, res, (err) => {
-        if (err) return res.render('index', { error: err.message || 'Upload Error' });
-        if (!req.file) return res.render('index', { error: 'No File Selected' });
+// Image page (FIXED: error always passed)
+app.get('/v/:id', (req, res) => {
+    const fileId = req.params.id;
 
-        // req.file.filename in Cloudinary storage is the Public ID (e.g., "vise_uploads/vise-cool")
-        // We just want the last part for our clean URL
-        const fullPublicId = req.file.filename; 
-        const shortId = fullPublicId.split('/').pop(); 
+    const imageUrl = cloudinary.url(`vise_uploads/${fileId}`, {
+        secure: true,
+        transformation: [
+            { quality: 'auto', fetch_format: 'auto' }
+        ]
+    });
+
+    res.render('image', {
+        file: fileId,
+        url: imageUrl,
+        error: null // 🔒 REQUIRED
+    });
+});
+
+// Upload
+app.post('/upload', (req, res) => {
+    upload(req, res, err => {
+        if (err) {
+            return res.render('index', {
+                error: err.message || 'Upload Error'
+            });
+        }
+
+        if (!req.file) {
+            return res.render('index', {
+                error: 'No File Selected'
+            });
+        }
+
+        const fullPublicId = req.file.filename;
+        const shortId = fullPublicId.split('/').pop();
 
         res.redirect(`/v/${shortId}`);
     });
 });
 
-app.listen(PORT, () => console.log(`VISE server running on port ${PORT}`));
+/* ---------------- START ---------------- */
+
+app.listen(PORT, () => {
+    console.log(`VISE server running on port ${PORT}`);
+});
