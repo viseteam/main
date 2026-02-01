@@ -18,62 +18,50 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+/* ---------------- HELPER: ID GENERATOR ---------------- */
+
+// Generates ID like: vise-customname_by_username
+const generatePublicId = (req) => {
+    const customId = req.body.customId;
+    const username = req.body.username;
+    
+    // Base Name
+    let baseName = (customId && customId.trim()) 
+        ? `vise-${customId.replace(/[^a-zA-Z0-9]/g, "").substring(0, 30)}` 
+        : uuidv4();
+
+    // Append Username if exists (sanitize it!)
+    if (username && username.trim()) {
+        const cleanUser = username.replace(/[^a-zA-Z0-9]/g, "").substring(0, 15);
+        baseName += `_by_${cleanUser}`;
+    }
+
+    return baseName;
+};
+
 /* ---------------- STORAGE ENGINES ---------------- */
 
-// 1. IMAGE STORAGE (Converts to PNG)
 const imageStorage = new CloudinaryStorage({
     cloudinary,
-    params: async (req, file) => {
-        const customId = req.body.customId;
-        let publicId;
-
-        if (customId && customId.trim()) {
-            const safeSlug = customId.replace(/[^a-zA-Z0-9]/g, "").substring(0, 30);
-            publicId = `vise-${safeSlug}`;
-        } else {
-            publicId = uuidv4();
-        }
-
-        return {
-            folder: 'vise_uploads',
-            public_id: publicId,
-            format: 'png'
-        };
-    }
+    params: async (req, file) => ({
+        folder: 'vise_uploads',
+        public_id: generatePublicId(req),
+        format: 'png'
+    })
 });
 
-// 2. HTML STORAGE (Raw File)
 const htmlStorage = new CloudinaryStorage({
     cloudinary,
-    params: async (req, file) => {
-        const customId = req.body.customId;
-        let publicId;
-
-        if (customId && customId.trim()) {
-            const safeSlug = customId.replace(/[^a-zA-Z0-9]/g, "").substring(0, 30);
-            publicId = `vise-${safeSlug}`;
-        } else {
-            publicId = uuidv4();
-        }
-
-        return {
-            folder: 'vise_static',
-            public_id: publicId,
-            resource_type: 'raw', // Important for HTML
-            format: 'html'
-        };
-    }
+    params: async (req, file) => ({
+        folder: 'vise_static',
+        public_id: generatePublicId(req),
+        resource_type: 'raw',
+        format: 'html'
+    })
 });
 
-const uploadImage = multer({ 
-    storage: imageStorage, 
-    limits: { fileSize: 10 * 1024 * 1024 } 
-}).single('viseImage');
-
-const uploadHtml = multer({ 
-    storage: htmlStorage, 
-    limits: { fileSize: 5 * 1024 * 1024 } 
-}).single('viseHtml');
+const uploadImage = multer({ storage: imageStorage, limits: { fileSize: 10 * 1024 * 1024 } }).single('viseImage');
+const uploadHtml = multer({ storage: htmlStorage, limits: { fileSize: 5 * 1024 * 1024 } }).single('viseHtml');
 
 /* ---------------- APP CONFIG ---------------- */
 
@@ -83,91 +71,78 @@ app.use(express.urlencoded({ extended: true }));
 
 /* ---------------- ROUTES ---------------- */
 
-// 1. Health Check
-app.get('/health', (req, res) => {
-    res.json({ status: 'online' });
-});
+app.get('/health', (req, res) => res.json({ status: 'online' }));
+app.get('/', (req, res) => res.render('index', { error: null }));
 
-// 2. Home Page
-app.get('/', (req, res) => {
-    res.render('index', { error: null });
-});
-
-// 3. View Image Page
+// 3. View Image Page (Updated for Metadata)
 app.get('/v/:id', (req, res) => {
     const fileId = req.params.id;
+    
+    // Extract Username from ID (vise-name_by_dill)
+    let displayUser = 'Anonymous';
+    let cleanName = fileId;
+
+    if (fileId.includes('_by_')) {
+        const parts = fileId.split('_by_');
+        cleanName = parts[0]; // The 'vise-name' part
+        displayUser = parts[1]; // The 'dill' part
+    }
+
     const imageUrl = cloudinary.url(`vise_uploads/${fileId}`, {
         secure: true, 
         transformation: [{ quality: 'auto', fetch_format: 'auto' }]
     });
 
     res.render('image', { 
-        file: fileId, 
+        rawId: fileId,
+        cleanName: cleanName,
+        user: displayUser,
         url: imageUrl, 
         error: null 
     });
 });
 
-// 4. Serve Static HTML (Proxy)
+// 4. Serve Static HTML
 app.get('/static/:id.html', async (req, res) => {
     try {
         const fileId = req.params.id;
-        // Construct the raw Cloudinary URL
-        const rawUrl = cloudinary.url(`vise_static/${fileId}.html`, { 
-            resource_type: 'raw', 
-            secure: true 
-        });
-
-        // Fetch content and serve
+        const rawUrl = cloudinary.url(`vise_static/${fileId}.html`, { resource_type: 'raw', secure: true });
         const response = await axios.get(rawUrl);
         res.set('Content-Type', 'text/html');
         res.send(response.data);
     } catch (err) {
-        res.status(404).send('File not found or deleted.');
+        res.status(404).send('File not found.');
     }
 });
 
-/* ---------------- UPLOAD LOGIC ---------------- */
+/* ---------------- UPLOAD HANDLERS ---------------- */
 
-const handleUploadResponse = (req, res, type) => {
+const handleUpload = (req, res, type) => {
     const fullPublicId = req.file.filename; 
-    // Remove folder path and extension to get the ID
     const shortId = fullPublicId.split('/').pop().replace('.html', ''); 
+    
+    const redirectUrl = (type === 'image') ? `/v/${shortId}` : `/static/${shortId}.html`;
 
-    let redirectUrl;
-    if (type === 'image') {
-        redirectUrl = `/v/${shortId}`;
-    } else {
-        redirectUrl = `/static/${shortId}.html`;
-    }
-
-    // Return JSON for AJAX frontend
     if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
         return res.json({ redirect: redirectUrl });
     }
     res.redirect(redirectUrl);
 };
 
-// Image Upload Endpoint
 app.post('/upload/image', (req, res) => {
     uploadImage(req, res, (err) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!req.file) return res.status(400).json({ error: 'No File Selected' });
-        handleUploadResponse(req, res, 'image');
+        handleUpload(req, res, 'image');
     });
 });
 
-// HTML Upload Endpoint
 app.post('/upload/html', (req, res) => {
     uploadHtml(req, res, (err) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!req.file) return res.status(400).json({ error: 'No File Selected' });
-        handleUploadResponse(req, res, 'html');
+        handleUpload(req, res, 'html');
     });
 });
 
-/* ---------------- START ---------------- */
-
-app.listen(PORT, () => {
-    console.log(`VISE server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log(`VISE server running on ${PORT}`));
