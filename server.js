@@ -55,14 +55,17 @@ app.use(express.urlencoded({ extended: true }));
 
 /* ---------------- ROUTES ---------------- */
 
-// Home
-app.get('/', (req, res) => {
-    res.render('index', {
-        error: null
-    });
+// 1. Health Check (New Feature for the Green Dot)
+app.get('/health', (req, res) => {
+    res.json({ status: 'online' });
 });
 
-// Image page (FIXED: error always passed)
+// 2. Home Page
+app.get('/', (req, res) => {
+    res.render('index', { error: null });
+});
+
+// 3. Image Page
 app.get('/v/:id', (req, res) => {
     const fileId = req.params.id;
 
@@ -76,29 +79,41 @@ app.get('/v/:id', (req, res) => {
     res.render('image', {
         file: fileId,
         url: imageUrl,
-        error: null // 🔒 REQUIRED
+        error: null
     });
 });
 
-// Upload
+// 4. Upload Route (Updated for AJAX Support)
 app.post('/upload', (req, res) => {
     upload(req, res, err => {
+        // Handle Errors
         if (err) {
-            return res.render('index', {
-                error: err.message || 'Upload Error'
-            });
+            const errorMsg = err.message || 'Upload Error';
+            if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
+                return res.status(500).json({ error: errorMsg });
+            }
+            return res.render('index', { error: errorMsg });
         }
 
         if (!req.file) {
-            return res.render('index', {
-                error: 'No File Selected'
-            });
+            const errorMsg = 'No File Selected';
+            if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
+                return res.status(400).json({ error: errorMsg });
+            }
+            return res.render('index', { error: errorMsg });
         }
 
+        // Success Logic
         const fullPublicId = req.file.filename;
         const shortId = fullPublicId.split('/').pop();
+        const redirectUrl = `/v/${shortId}`;
 
-        res.redirect(`/v/${shortId}`);
+        // Return JSON for the new frontend (AJAX), otherwise standard redirect
+        if (req.xhr || (req.headers.accept && req.headers.accept.includes('json'))) {
+            return res.json({ redirect: redirectUrl });
+        }
+
+        res.redirect(redirectUrl);
     });
 });
 
