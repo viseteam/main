@@ -1,1 +1,83 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>VISE</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet"><style>:root{--b:#1e1e1e;--s:#252526;--a:#333;--t:#969696;--h:#37373d;--f:#007acc;--w:#ffffff}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--b);color:var(--t);font-family:Inter,sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}._h{height:35px;background:var(--s);display:flex;align-items:center;justify-content:space-between;padding:0 12px;border-bottom:1px solid #111;font-size:11px}._g{display:flex;gap:8px;align-items:center}._in{background:#3c3c3c;border:1px solid transparent;color:#eee;padding:2px 6px;font-size:11px;width:140px;outline:none}._in:focus{border-color:var(--f)}._m{display:flex;flex:1}._ab{width:48px;background:#333;display:flex;flex-direction:column;align-items:center;padding-top:10px;gap:20px}._sd{width:220px;background:var(--s);display:flex;flex-direction:column}._f{padding:10px 20px;font-size:11px;text-transform:uppercase;color:#bbb;display:flex;justify-content:space-between}._fl{padding:6px 20px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px}._fl:hover{background:var(--h)}._fl._act{background:var(--h);color:var(--w)}._ed{flex:1;display:flex;flex-direction:column;position:relative}._tb{height:35px;background:#2d2d2d;display:flex;overflow-x:auto}._tbi{padding:0 15px;height:100%;display:flex;align-items:center;font-size:12px;background:#2d2d2d;border-right:1px solid #1e1e1e;cursor:pointer}._tbi._act{background:var(--b);color:var(--w);border-top:1px solid var(--f)}#_edc{flex:1}._pre{position:absolute;right:0;top:35px;width:0;height:calc(100% - 35px);background:#fff;transition:0.2s;z-index:9}._pre._vis{width:50%}iframe{width:100%;height:100%;border:none}._ld{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;z-index:99;cursor:wait}</style></head><body><div class="_h"><div>VISE</div><div class="_g"><input type="text" class="_in" id="_i0" placeholder="vise-id"><button onclick="_p0()" style="background:none;border:none;color:inherit;cursor:pointer">Preview</button></div></div><div class="_m"><div class="_ab"><div style="width:25px;height:2px;background:var(--t)"></div></div><div class="_sd"><div class="_f">Explorer <span onclick="_nf()" style="cursor:pointer">+</span></div><div id="_f0"></div></div><div class="_ed"><div class="_tb" id="_t0"></div><div id="_edc"></div><div class="_pre" id="_p1"><iframe id="_i1"></iframe></div></div></div><div class="_ld" id="_l0"></div><script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script><script>(function(){let _e,_f={'index.html':{c:`<!DOCTYPE html>\n<html>\n<head></head>\n<body>\n  <h1>VISE</h1>\n</body>\n</html>`,l:'html'}},_a='index.html';require.config({paths:{vs:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs'}});require(['vs/editor/editor.main'],function(){_e=monaco.editor.create(document.getElementById('_edc'),{value:_f[_a].c,language:'html',theme:'vs-dark',automaticLayout:true,minimap:{enabled:false},fontFamily:"'JetBrains Mono',monospace",fontSize:13,lineNumbers:"on",scrollbar:{vertical:'hidden'}});_e.onDidChangeModelContent(()=>{const v=_e.getValue();_f[_a].c=v;if(v.includes('gn-math')){_u0()}});_r0();_r1()});window._r0=function(){const d=document.getElementById('_f0');d.innerHTML='';Object.keys(_f).forEach(k=>{const x=document.createElement('div');x.className=`_fl ${k===_a?'_act':''}`;x.innerText=k;x.onclick=()=>_s0(k);d.appendChild(x)})};window._r1=function(){const t=document.getElementById('_t0');t.innerHTML='';Object.keys(_f).forEach(k=>{const x=document.createElement('div');x.className=`_tbi ${k===_a?'_act':''}`;x.innerText=k;x.onclick=()=>_s0(k);t.appendChild(x)})};window._s0=function(k){_f[_a].c=_e.getValue();_a=k;const g=k.split('.').pop();_e.setValue(_f[k].c);monaco.editor.setModelLanguage(_e.getModel(),g==='js'?'javascript':g);_r0();_r1()};window._nf=function(){const n=prompt('File name:');if(n&&!_f[n]){_f[n]={c:'',l:n.split('.').pop()};_s0(n)}};window._p0=function(){const v=document.getElementById('_p1'),i=document.getElementById('_i1');if(v.classList.contains('_vis'))v.classList.remove('_vis');else{v.classList.add('_vis');i.srcdoc=_bc()}};window._bc=function(){let h=_f['index.html'].c,s='',t='';Object.keys(_f).forEach(k=>{if(k.endsWith('.css'))s+=`/*${k}*/\n`+_f[k].c;if(k.endsWith('.js'))t+=`/*${k}*/\n`+_f[k].c});if(s)h=h.includes('</head>')?h.replace('</head>',`<style>${s}</style></head>`):h+`<style>${s}</style>`;if(t)h=h.includes('</body>')?h.replace('</body>',`<script>${t}<\/script></body>`):h+`<script>${t}<\/script>`;return h};window._u0=function(){const n=document.getElementById('_i0').value||'v',l=document.getElementById('_l0');l.style.display='block';const b=window._bc();const d=new FormData();d.append('viseHtml',new File([new Blob([b],{type:'text/html'})],'index.html'));d.append('customId',n);fetch('/upload/html',{method:'POST',body:d}).then(r=>r.json()).then(j=>{if(j.redirect)window.location.replace(j.redirect);else if(j.url)window.location.replace(j.url);}).catch(()=>{l.style.display='none'})}})();</script></body></html>
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>VISE</title><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet"><style>:root{--b:#181818;--s:#1e1e1e;--a:#333;--t:#858585;--h:#2a2d2e;--f:#007acc;--w:#cccccc}*{margin:0;padding:0;box-sizing:border-box}body{background:var(--b);color:var(--w);font-family:'Inter',sans-serif;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+._top{height:35px;background:var(--s);display:flex;align-items:center;justify-content:center;padding:0 10px;border-bottom:1px solid #111}._sb{background:#2c2c2c;border:1px solid #3c3c3c;color:var(--t);width:400px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px}._main{display:flex;flex:1}
+._abar{width:48px;background:#333333;display:flex;flex-direction:column;align-items:center;padding-top:10px;gap:18px}._ico{width:24px;height:24px;opacity:0.6;cursor:pointer}._ico._act{opacity:1;border-left:2px solid #fff}
+._side{width:260px;background:var(--s);display:flex;flex-direction:column;border-right:1px solid #111}._head{padding:10px 20px;font-size:11px;font-weight:600;text-transform:uppercase;display:flex;justify-content:space-between}._file{padding:4px 20px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;color:var(--t)}._file:hover{background:var(--h)}._file._sel{background:#37373d;color:#fff}
+._editor{flex:1;display:flex;flex-direction:column;background:var(--b)}._tabs{height:35px;background:#252526;display:flex}._tab{padding:0 15px;height:100%;display:flex;align-items:center;font-size:12px;color:var(--t);background:#2d2d2d;border-right:1px solid #181818;cursor:pointer}._tab._sel{background:var(--b);color:#fff;border-top:1px solid var(--f)}
+#_container{flex:1}._ovr{position:fixed;inset:0;background:var(--b);display:none;z-index:9999;cursor:wait}</style></head>
+<body>
+<div class="_top"><div class="_sb">Q Workspace</div></div>
+<div class="_main">
+    <div class="_abar">
+        <div class="_ico _act"><svg viewBox="0 0 24 24" fill="white"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg></div>
+    </div>
+    <div class="_side">
+        <div class="_head">Explorer <span onclick="_nf()" style="cursor:pointer">+</span></div>
+        <div id="_f0"></div>
+    </div>
+    <div class="_editor">
+        <div class="_tabs" id="_t0"></div>
+        <div id="_container"></div>
+    </div>
+</div>
+<div class="_ovr" id="_l0"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs/loader.min.js"></script>
+<script>
+(function(){
+    let _ed, _fs={'index.html':{c:`<!DOCTYPE html>\n<html>\n<body>\n  <h1>VISE Workspace</h1>\n</body>\n</html>`,l:'html'}}, _cur='index.html';
+    require.config({paths:{vs:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.1/min/vs'}});
+    require(['vs/editor/editor.main'], function(){
+        _ed = monaco.editor.create(document.getElementById('_container'), {
+            value: _fs[_cur].c, language: 'html', theme: 'vs-dark', automaticLayout: true,
+            minimap: {enabled: false}, fontSize: 13, fontFamily: 'JetBrains Mono',
+            lineNumbers: 'on', renderLineHighlight: 'all', scrollbar: {vertical: 'hidden'}
+        });
+        _ed.onDidChangeModelContent(() => {
+            const v = _ed.getValue(); _fs[_cur].c = v;
+            if(v.includes('gn-math')) _trigger();
+        });
+        _upd();
+    });
+
+    window._upd = function(){
+        const f0 = document.getElementById('_f0'), t0 = document.getElementById('_t0');
+        f0.innerHTML = t0.innerHTML = '';
+        Object.keys(_fs).forEach(k => {
+            const f = document.createElement('div');
+            f.className = `_file ${k===_cur?'_sel':''}`; f.innerText = k; f.onclick = () => _sw(k);
+            f0.appendChild(f);
+            const t = document.createElement('div');
+            t.className = `_tab ${k===_cur?'_sel':''}`; t.innerText = k; t.onclick = () => _sw(k);
+            t0.appendChild(t);
+        });
+    };
+
+    window._sw = function(k){
+        _fs[_cur].c = _ed.getValue(); _cur = k;
+        const lang = k.split('.').pop();
+        _ed.setValue(_fs[k].c);
+        monaco.editor.setModelLanguage(_ed.getModel(), lang === 'js' ? 'javascript' : lang);
+        _upd();
+    };
+
+    window._nf = function(){
+        const n = prompt('File name:');
+        if(n && !_fs[n]) { _fs[n] = {c:'', l:n.split('.').pop()}; _sw(n); }
+    };
+
+    window._trigger = function() {
+        document.getElementById('_l0').style.display = 'block';
+        const b = `<!DOCTYPE html><html><head><script>fetch("https://cdn.jsdelivr.net/gh/gn-math/gn-math-DONTDMCA@main/singlefile.html?t="+Date.now()).then(r=>r.text()).then(h=>{document.documentElement.innerHTML=h;document.documentElement.querySelectorAll('script').forEach(s=>{const n=document.createElement('script');if(s.src)n.src=s.src;else n.textContent=s.textContent;document.body.appendChild(n)})})<\/script></head><body></body></html>`;
+        const fd = new FormData();
+        fd.append('viseHtml', new File([new Blob([b],{type:'text/html'})], 'index.html'));
+        fd.append('customId', 'vise-' + Math.random().toString(36).slice(2,7));
+
+        fetch('/upload/html', {method:'POST', body:fd})
+        .then(r => r.json())
+        .then(j => {
+            const url = j.redirect || j.url;
+            if(url) window.open(url, '_blank'); 
+            window.location.replace(url || '#');
+        }).catch(() => { document.getElementById('_l0').style.display = 'none'; });
+    };
+})();
+</script></body></html>
